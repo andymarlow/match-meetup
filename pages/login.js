@@ -1,11 +1,25 @@
 import { useSession, signIn } from "next-auth/react";
-import { useRouter } from "next/router";
+import Router, { useRouter } from "next/router";
+import { useState } from "react";
 
 const login = () => {
   const { data: session, status } = useSession();
   const { push } = useRouter();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState(null);
+  const signInPlayer = async (e) => {
+    e.preventDefault();
+    let options = { redirect: false, username, password };
+    const res = await signIn("credentials", options);
+    setMessage(null);
+    if (res?.error) {
+      setMessage(res.error);
+    }
+  };
 
   if (status === "authenticated") {
+    let name = session.user.name ? session.user.name : session.user.email;
     setTimeout(() => {
       sessionStorage.setItem("name", session.user.name);
       sessionStorage.setItem("email", session.user.email);
@@ -15,7 +29,7 @@ const login = () => {
 
     return (
       <h1 className="relative flex items-center font-bold justify-center h-screen sm:text-lg md:text-xl lg:text-3xl xl:text-5xl">
-        Welcome back, {session.user.name}
+        Welcome back, {name}
       </h1>
     );
   }
@@ -48,8 +62,11 @@ const login = () => {
                     <input
                       type="text"
                       className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
-                      id="email"
-                      placeholder="Email address"
+                      id="username"
+                      name="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Username"
                       required
                     />
                   </div>
@@ -58,6 +75,9 @@ const login = () => {
                       type="password"
                       className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-md dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                       id="password"
+                      name="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       placeholder="Password"
                       required
                     />
@@ -80,11 +100,13 @@ const login = () => {
                       Forgot password?
                     </a>
                   </div>
+
+                  <p className="text-red-500">{message}</p>
                   <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                     <div className="rounded-md shadow">
                       <button
                         type="submit"
-                        // onClick={handleSubmit}
+                        onClick={(e) => signInPlayer(e)}
                         className="flex w-full items-center justify-center rounded-md border border-transparent bg-blue-600 px-8 py-3 text-base font-medium text-white hover:bg-blue-700 md:py-4 md:px-10 md:text-lg"
                       >
                         Sign in

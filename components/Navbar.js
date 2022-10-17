@@ -3,6 +3,7 @@ import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 const navigation = [
   { name: "Home", href: "/", current: false },
@@ -22,6 +23,7 @@ function classNames(...classes) {
 }
 
 export default function Nav() {
+  const { data: session } = useSession();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [imageURL, setImageURL] = useState("");
@@ -32,6 +34,7 @@ export default function Nav() {
     setImageURL(sessionStorage.getItem("imageURL"));
   }, []);
 
+  console.log(session);
   return (
     <>
       <div className="min-h-full">
